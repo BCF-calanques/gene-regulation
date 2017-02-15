@@ -1,3 +1,4 @@
+import os
 # Set parameters
 if not "qsub" in config.keys():
     sys.exit("The parameter qsub must be defined in the config file")
@@ -84,7 +85,7 @@ rule sartools_DESeq2:
     params:
         wd = "{diffexpr_dir}/{test}_vs_{ref}/DESeq2",
         targetFile = "{preprocess,.*}SARTools_targetfile.txt",
-        rawDir = "", #config["dir"]["base"] + "/" + config["dir"]["samples"],
+        rawDir = os.getcwd(),
         baseDir = config["dir"]["base"],
         projectName = "{test}_vs_{ref}_{preprocess,.*}DESeq2",
         author = config["author"],
@@ -105,8 +106,9 @@ rule sartools_DESeq2:
     log: "{diffexpr_dir}/{test}_vs_{ref}/DESeq2/{test}_vs_{ref}_{preprocess,.*}DESeq2.log"
     benchmark: "{diffexpr_dir}/{test}_vs_{ref}/DESeq2/{test}_vs_{ref}_{preprocess,.*}DESeq2_benchmark.json"
     run:
+        
         R("""
-
+        
         rm(list=ls())
 
         sink("{log}")
@@ -185,7 +187,7 @@ rule sartools_DESeq2:
         up <- as.vector(read.table(paste("tables/", list.files(path = "tables", pattern = "up.txt$")[1], sep=""))[,1])
         down <- as.vector(read.table(paste("tables/", list.files(path = "tables", pattern = "down.txt$")[1], sep=""))[,1])
 
-        setwd("{params.baseDir}")
+        setwd("{params.rawDir}")
 
         gene_list <- c(up[2:length(up)], down[2:length(down)])
         print(gene_list)

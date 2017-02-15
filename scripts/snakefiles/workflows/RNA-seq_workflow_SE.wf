@@ -85,29 +85,39 @@ GENOME_GTF = GENOME_DIR + config["genome"]["gtf_file"]
 if not (("dir" in config.keys()) and ("reads_source" in config["dir"].keys())):
     sys.exit("The parameter config['dir']['reads_source'] should be specified in the config file.")
 
-READS = os.path.join(config["dir"]["base"],config["dir"]["reads_source"])
+READS = config["dir"]["reads_source"]
+if not os.path.exists(READS):
+    os.makedirs(READS)
 
 if not ("results" in config["dir"].keys()):
     sys.exit("The parameter config['dir']['results'] should be specified in the config file.")
 else:
-    RESULTS_DIR = os.path.join(config["dir"]["base"],config["dir"]["results"])
-
+    RESULTS_DIR = config["dir"]["results"] + "/"
+    
 if not ("samples" in config["dir"].keys()):
-    SAMPLE_DIR = os.path.join(config["dir"]["base"],config["dir"]["results"])
+    SAMPLE_DIR = config["dir"]["results"] + "/"
 else:
-    SAMPLE_DIR = os.path.join(config["dir"]["base"],config["dir"]["samples"])
+    SAMPLE_DIR = config["dir"]["samples"] + "/"
+
+if not ("peaks" in config["dir"].keys()):
+    PEAKS_DIR = config["dir"]["results"] + "/"
+else:
+    PEAKS_DIR = config["dir"]["peaks"] + "/"
 
 if not ("reports" in config["dir"].keys()):
-    REPORTS_DIR = os.path.join(config["dir"]["base"],config["dir"]["results"])
+    REPORTS_DIR = config["dir"]["results"] + "/"
 else:
-    REPORTS_DIR = os.path.join(config["dir"]["base"],config["dir"]["reports"])
+    REPORTS_DIR = config["dir"]["reports"] + "/"
 
 if not ("diffexpr" in config["dir"].keys()):
-    DEG_DIR = os.path.join(config["dir"]["base"],config["dir"]["results"])
+    DEG_DIR = config["dir"]["results"] + "/"
 else:
-    DEG_DIR = os.path.join(config["dir"]["base"],config["dir"]["diffexpr"])
-
-
+    DEG_DIR = config["dir"]["diffexpr"] + "/"
+    
+if not ("fastq" in config["dir"].keys()):
+    sys.exit("The parameter config['dir']['fastq'] should be specified in the config file.")
+else:
+    FASTQ_DIR = config["dir"]["fastq"] + "/"
 
 #================================================================#
 #               Snakemake includes
@@ -235,6 +245,7 @@ INFER_TRANSCRIPTS = expand("{alignment}_cufflinks/transcripts.gtf", alignment=AL
 ## ----------------------------------------------------------------
 
 ## TODO
+IGV = expand(REPORTS_DIR + "/igv_session.xml")
 
 GENOME_COVERAGE = expand("{alignment}.bedgraph", alignment=ALIGNMENT)
 
@@ -242,7 +253,7 @@ GENOME_COVERAGE_GZ = expand("{alignment}.bedgraph.gz", alignment=ALIGNMENT)
 GENOME_COVERAGE_TDF = expand("{alignment}.tdf", alignment=ALIGNMENT)
 
 
-GRAPHICS = expand(REPORTS_DIR + "/{graph}.png", graph=["dag", "rulegraph"])
+GRAPHICS = expand(REPORTS_DIR + "{graph}.png", graph=["dag", "rulegraph"])
 
 #================================================================#
 #                        Rule all                                #
@@ -268,4 +279,3 @@ rule all:
             GRAPHICS
 	params: qsub=config["qsub"]
 	shell: "echo Job done    `date '+%Y-%m-%d %H:%M'`"
-
