@@ -7,8 +7,12 @@ Homer needs seqlogo and blat programs, both not packaged:
 
 To install blat on Linux : 
 1 take the latest blatSrcXX.zip archive from https://users.soe.ucsc.edu/~kent/src/  
-2 install it on /usr/local following instruction from http://nix-bio.blogspot.fr/2013/10/installing-blat-and-blast.html  
+2 install it on /usr/local following instruction from 
+http://nix-bio.blogspot.fr/2013/10/installing-blat-and-blast.html  
 3 to avoid the "jkweb.a no rule" problem compile it with make MACHTYPE=$MACHTYPE  
 
 To install seqlogo, one has to install weblogo : http://weblogo.berkeley.edu/
-The archive already contains the binaries once extracted. Note that if you are installing weblogo in /usr/local/src you need to create a bin directory under /usr/local/src/weblogo and copy there the seqlogo binaries in order to be able to execute them globally in your system.
+The archive already contains the binaries once extracted. Note that if you are 
+installing weblogo in /usr/local/src you need to create a bin directory under 
+/usr/local/src/weblogo and copy there the seqlogo binaries in order to be able to 
+execute them globally in your system.

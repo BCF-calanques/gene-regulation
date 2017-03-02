@@ -254,25 +254,24 @@ GENOME_COVERAGE_TDF = expand("{alignment}.tdf", alignment=ALIGNMENT)
 #================================================================#
 
 rule all: 
-	"""
-	Run all the required analyses.
-	"""
-	input: \
-            IMPORT, \
-            QC, \
-            INDEX, \
-            MAPPING, \
-            SORTED_BAM, \
-            SORTED_BAM_BAI, \
-            BAM_STATS, \
-            GENOME_COVERAGE_TDF, \
-            GENOME_COVERAGE_PLUS, \
-            GENOME_COVERAGE_MINUS, \
-##            INFER_TRANSCRIPTS, \
-            FEATURE_COUNTS, \
-            SARTOOLS_TARGETFILE, \
-            DEG, \
-            GRAPHICS
-	params: qsub=config["qsub"]
-	shell: "echo Job done    `date '+%Y-%m-%d %H:%M'`"
-
+    """
+    Run all the required analyses.
+    """
+    input: \
+        IMPORT, \
+        QC, \
+        INDEX, \
+        MAPPING, \
+        SORTED_BAM, \
+        SORTED_BAM_BAI, \
+        BAM_STATS, \
+        GENOME_COVERAGE_TDF, \
+        GENOME_COVERAGE_PLUS, \
+        GENOME_COVERAGE_MINUS, \
+        ##            INFER_TRANSCRIPTS, \
+        FEATURE_COUNTS, \
+        SARTOOLS_TARGETFILE, \
+        DEG, \
+        GRAPHICS
+    params: qsub=config["qsub"]
+    shell: "echo Job done    `date '+%Y-%m-%d %H:%M'`"

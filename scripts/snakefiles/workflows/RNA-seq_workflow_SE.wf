@@ -82,13 +82,10 @@ GENOME_GTF = GENOME_DIR + config["genome"]["gtf_file"]
 
 
 ## Data & results dir
-if not (("dir" in config.keys()) and ("reads_source" in config["dir"].keys())):
-    sys.exit("The parameter config['dir']['reads_source'] should be specified in the config file.")
 
-READS = config["dir"]["reads_source"]
 if not os.path.exists(READS):
     os.makedirs(READS)
-
+    
 if not ("results" in config["dir"].keys()):
     sys.exit("The parameter config['dir']['results'] should be specified in the config file.")
 else:

@@ -192,7 +192,5 @@ rule sartools_DESeq2:
         gene_list <- c(up[2:length(up)], down[2:length(down)])
         print(gene_list)
         write.table(gene_list, file="{output.gene_list}", row.names=F, col.names=F, quote=F)
-
         sink()
         """)
-
