@@ -43,4 +43,5 @@ http://nix-bio.blogspot.fr/2013/10/installing-blat-and-blast.html
 You have to install the `weblogo` archive  from http://weblogo.berkeley.edu/
 The archive already contains the seqlogo binary file ready for use.  
 
-### [SARtools install](
+### [SARtools install](https://github.com/PF2-pasteur-fr/SARTools)
+On the [SARtools GitHub page](https://github.com/PF2-pasteur-fr/SARTools) follow the install instructions on the README file, to install it either within `R`, or using `bioconda`.
