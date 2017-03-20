@@ -2,7 +2,7 @@ Linux install instructions for non packaged programs used by gene-regulation
 ============================================================================
 *Author - Edlira Nano*
 
-## PREREQUISITES
+## Prerequisites
 
 For the workflows of this program to run you will need to install the following software :
 
