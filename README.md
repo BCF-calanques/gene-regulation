@@ -1,23 +1,77 @@
-# France Genomique  Workpackage 2.6 - Gene Regulation  
-*Claire Rioualen - Sept. 19th, 2016*
+# Gene Regulation @ Calanques BCF  
+*Authors : Edlira Nano, Claire Rioualen*
 
-This git repository holds shared code for the analysis of Next
+This program holds shared code to produce workflows for the analysis of Next
 Generation Sequencing data related to gene regulation: ChIP-seq,
-RNA-seq, and related technologies. 
+RNA-seq, and related technologies, as used at the Calanques BCF (Bioinformatics Core Facility, TAGC & IBDM labs). 
 
-The goals are multiple.
+This program is a fork of the original France Genomique Workpackage 2.6 - Gene Regulation : https://github.com/rioualen/gene-regulation.
 
-1. Avoid duplication of efforts by sharing the developments of
-different bioinformaticians involved in ChIP-seq and RNA-seq projects.
-
-2. Ensure portability and re-usability of the code.
-
-3. Enable validation of the code by independent users.
+This version of the gene-regulation package follows the guidelines of: 
+1) [report of the TAGC meeting](https://github.com/TAGC-bioinformatics/RNAseqmake/blob/master/doc/preliminaries/report-RNA-seq-pipeline.md) 
 
 
+# Installation
 
-We have chosen to use the [Snakemake workflow management system](https://bitbucket.org/snakemake/snakemake/wiki/Home)[1] 
-in order to build reproducible and flexible NGS analysis pipelines.
+This program is written in the [Snakemake workflow management system](https://bitbucket.org/snakemake/snakemake/wiki/Home)[1]. Python, shell and R scripts are called from the snakemake workflows. In addition, several well-known NGS analysis tools are called from the snakemake workflows. 
+
+Most of these software and tools are packaged for [debian-based systems](https://www.debian.org/misc/children-distros). If not, 
+we refer to the [install.md instructions file](https://github.com/TAGC-bioinformatics/gene-regulation/blob/master/install.md). 
+
+## Prerequisites
+For this program to run you will need to install the following software :
+
+* R 3+ (debian packaged)
+* Python 2.7/3.4 (debian packaged)
+* Snakemake 3.4+ (debian packaged)
+
+Depending on the rules and workflow you will use on your analysis, you may also need to install the following :
+
+* [SRA Toolkit](http://www.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=software) (debian packaged)
+* [Sickle](https://github.com/najoshi/sickle) (debian packaged)
+* BWA (debian packaged)
+* Bowtie (debian packaged)
+* [Bowtie 2](http://bowtie-bio.sourceforge.net/) (debian packaged)
+* [SAMtools 1.3+](http://samtools.sourceforge.net/) (debian packaged)
+* [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) (0.11.2+) (debian packaged)
+* [bedtools](http://bedtools.readthedocs.org/) (debian packaged)
+* [HOMER](http://homer.salk.edu/homer/index.html), blast, weblogo/seqlogo (see [install.md file](https://github.com/TAGC-bioinformatics/gene-regulation/blob/master/install.md)
+* [SARtools](https://github.com/PF2-pasteur-fr/SARTools) (packaged for R or bioconda, see [install.md file](https://github.com/TAGC-bioinformatics/gene-regulation/blob/master/install.md)
+* MACS 14 (1.4.3)
+* [MACS2](https://github.com/taoliu/MACS/)
+* [SWEMBL](http://www.ebi.ac.uk/~swilder/SWEMBL/)
+* ...
+
+### Installing of non debian-packaged software
+
+#### [Homer install](http://homer.salk.edu/homer/introduction/install.html)
+
+Homer needs `seqlogo` and `blat` programs to run, both not packaged:
+
+#### To install `blat` on Linux:   
+1 take the latest blatSrcXX.zip archive from https://users.soe.ucsc.edu/~kent/src/  
+2 install it on /usr/local following instruction from 
+http://nix-bio.blogspot.fr/2013/10/installing-blat-and-blast.html  
+3 to avoid the "jkweb.a no rule" problem compile it with make MACHTYPE=$MACHTYPE  
+
+#### To install `seqlogo`:
+You have to install the `weblogo` archive  from http://weblogo.berkeley.edu/
+The archive already contains the seqlogo binary file ready for use.  
+
+#### [SARtools install](https://github.com/PF2-pasteur-fr/SARTools)
+On the [SARtools GitHub page](https://github.com/PF2-pasteur-fr/SARTools) follow the install instructions on the README file, to install it either within `R`, or using `bioconda`.
+
+## Alternative installation options
+
+The original poject recommends using one the  [tutorials on virtualization](doc/gene-regulation_tutorials), in order to run the workflows under a unix system without damaging your installation. 
+
+The original project also contains a makefile that installs all the tools and dependencies used by gene-regulation. 
+*[NB currently only ChIP-seq dependencies are included, RNA-seq specific tools are to be included soon.]*
+
+```
+make -f gene-regulation/scripts/makefiles/install_tools_and_libs.mk all
+source ~/.bashrc
+```
 
 # Snakemake workflows
 
@@ -50,38 +104,6 @@ The workflow can generate a flowchart of the analysis, here is the chart for ChI
 **Full tutorials** can be found in the `doc` section, including the creation of a virtual machine/docker container, the installation of all the tools and dependencies and the execution of the workflows: [`doc/gene-regulation_tutorials`](doc/gene-regulation_tutorials).
 
 These tutorials have been developed for ChIP-seq studies; however RNA-seq pipelines are soon to be included. 
-
-# Pre-requisites
-
-We recommand using one of our [tutorials on virtualization](doc/gene-regulation_tutorials), in order to run the workflows under a unix system without damaging your installation. 
-
-However, this repository contains a makefile that installs all the tools and dependencies used by gene-regulation. 
-*[NB currently only ChIP-seq dependencies are included, RNA-seq specific tools are to be included soon.]*
-
-```
-make -f gene-regulation/scripts/makefiles/install_tools_and_libs.mk all
-source ~/.bashrc
-```
-
-It includes:
-
-* R 3+
-* Python 2.7/3.4
-* Snakemake 3.4+
-* [SRA Toolkit](http://www.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=software)
-* [Sickle](https://github.com/najoshi/sickle)
-* BWA
-* Bowtie
-* [Bowtie 2](http://bowtie-bio.sourceforge.net/)
-* [SAMtools 1.3+](http://samtools.sourceforge.net/)
-* [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) (0.11.2+)
-* [bedtools](http://bedtools.readthedocs.org/)
-* [HOMER](http://homer.salk.edu/homer/index.html)
-* MACS 14 (1.4.3)
-* [MACS2](https://github.com/taoliu/MACS/)
-* [SWEMBL](http://www.ebi.ac.uk/~swilder/SWEMBL/)
-* subread
-* ... (to be updated)
 
 
 # Documentation
