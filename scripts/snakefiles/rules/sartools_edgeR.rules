@@ -80,9 +80,11 @@ rule sartools_edgeR:
     params:
         wd = "{diffexpr_dir}/{test}_vs_{ref}/edgeR",
         targetFile = "{preprocess,.*}SARTools_targetfile.txt",
-        rawDir = os.getcwd(),
+        
+	rawDir = os.getcwd(),
         baseDir = config["dir"]["base"],
-        projectName = "{test}_vs_{ref}_{preprocess,.*}edgeR",
+        
+	projectName = "{test}_vs_{ref}_{preprocess,.*}edgeR",
         author = config["author"],
         featuresToRemove = config["edgeR"]["featuresToRemove"],
         varInt = config["edgeR"]["varInt"],
@@ -104,6 +106,8 @@ rule sartools_edgeR:
         rm(list=ls())
 
         library(SARTools)
+
+        baseDir <- getwd()
 
         targetFile <- "{params.targetFile}"
         setwd("{wildcards.diffexpr_dir}/{wildcards.test}_vs_{wildcards.ref}")

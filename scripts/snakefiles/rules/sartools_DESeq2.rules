@@ -85,9 +85,11 @@ rule sartools_DESeq2:
     params:
         wd = "{diffexpr_dir}/{test}_vs_{ref}/DESeq2",
         targetFile = "{preprocess,.*}SARTools_targetfile.txt",
-        rawDir = os.getcwd(),
+        
+	rawDir = os.getcwd(),
         baseDir = config["dir"]["base"],
-        projectName = "{test}_vs_{ref}_{preprocess,.*}DESeq2",
+        
+	projectName = "{test}_vs_{ref}_{preprocess,.*}DESeq2",
         author = config["author"],
         featuresToRemove = config["DESeq2"]["featuresToRemove"],
         varInt = config["DESeq2"]["varInt"],
@@ -114,6 +116,8 @@ rule sartools_DESeq2:
         sink("{log}")
 
         library(SARTools)
+
+        baseDir <- getwd()
 
         targetFile <- "{params.targetFile}"
         setwd("{wildcards.diffexpr_dir}/{wildcards.test}_vs_{wildcards.ref}")
