@@ -101,7 +101,7 @@ Follow the instructions in the `README.md` file in order to execute the whole wo
 These workflows generate a flowchart of the analysis, fo example here is the chart for ChIP-seq_SE_GSE20870 study case:
 ![](img/rule.png)
 
-# An RNA-seq workflow example (workflow and results)
+## An RNA-seq workflow example (workflow and results)
 
 The Flavio analyses is a tumor versus control case study of mouse RNA-seq paired-ended fastq files. The [Flavio workflow](https://github.com/TAGC-bioinformatics/gene-regulation/blob/master/scripts/snakefiles/workflows/RNA-seq_workflow_PE_Flavio.wf) we designed performed:  
 1. quality control with fastqc
@@ -118,6 +118,8 @@ The differential expression performed via SARtools in the workflow, produces the
 - [the DESeq2 results report](https://github.com/TAGC-bioinformatics/gene-regulation/blob/master/examples/reports/Flavio_Tumor_vs_Control_subread-align_DESeq2_report.html)
 
 # Documentation
+
+In order to begin building your own workflow for your data to analyse, you may want to check the [how_to_build_a_new_workflow guide](https://github.com/TAGC-bioinformatics/gene-regulation/blob/master/how_to_make_a_new_workflow.md) (not complete, ongoing work).
 
 More documentation can be found in the `doc` directory.
 
