@@ -130,10 +130,13 @@ It includes:
 
 Some general information about NGS can be found in the **Wiki** section. 
 
-
-
 # Contact
 
+At the BCF:   
+- Bianca Habermann <bianca.habermann@univ-amu.fr>
+- Edlira Nano <edlira.nano@inserm.fr>
+
+At the TAGC: (original gene-regulation package)  
 - Claire Rioualen <claire.rioualen@inserm.fr>
 - Jacques van Helden <Jacques.van-helden@univ-amu.fr>
 
