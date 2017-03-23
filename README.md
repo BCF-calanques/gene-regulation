@@ -87,7 +87,7 @@ This program contains several reusable NGS-specific rules, as well as a few work
 
 **A tutorial on Snakemake** basic usage is available in the doc section: [`doc/snakemake_tutorial`](doc/snakemake_tutorial).
 
-# Workflow example
+## Example study cases (data and workflow)
 
 In the [example directory](https://github.com/TAGC-bioinformatics/gene-regulation/tree/master/examples) you will find several case studies ready to be tested. Each study includes the following files:
 
@@ -101,7 +101,7 @@ Follow the instructions in the `README.md` file in order to execute the whole wo
 These workflows generate a flowchart of the analysis, fo example here is the chart for ChIP-seq_SE_GSE20870 study case:
 ![](img/rule.png)
 
-# An RNA-seq workflow example
+# An RNA-seq workflow example (workflow and results)
 
 The Flavio analyses is a tumor versus control case study of mouse RNA-seq paired-ended fastq files. The [Flavio workflow](https://github.com/TAGC-bioinformatics/gene-regulation/blob/master/scripts/snakefiles/workflows/RNA-seq_workflow_PE_Flavio.wf) we designed performed:  
 1. quality control with fastqc
