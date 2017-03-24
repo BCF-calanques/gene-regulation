@@ -2,7 +2,7 @@
 *.bed
 *.bam
 *.pyc
-
+*.html
 ## Claire
 
 .snakemake/
