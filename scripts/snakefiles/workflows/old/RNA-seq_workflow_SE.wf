@@ -133,7 +133,7 @@ include: os.path.join(RULES, "bowtie_index.rules")
 include: os.path.join(RULES, "cufflinks.rules")
 include: os.path.join(RULES, "dot_graph.rules")
 include: os.path.join(RULES, "dot_to_image.rules")
-include: os.path.join(RULES, "fastqc.rules")
+#include: os.path.join(RULES, "fastqc.rules")
 include: os.path.join(RULES, "genome_coverage_bedgraph.rules")
 include: os.path.join(RULES, "get_chrom_sizes.rules")
 include: os.path.join(RULES, "gzip.rules")
@@ -141,8 +141,8 @@ include: os.path.join(RULES, "index_bam.rules")
 include: os.path.join(RULES, "sartools_targetfile.rules")
 include: os.path.join(RULES, "sartools_DESeq2.rules")
 include: os.path.join(RULES, "sartools_edgeR.rules")
-include: os.path.join(RULES, "sickle.rules")
-include: os.path.join(RULES, "sra_to_fastq.rules")
+#include: os.path.join(RULES, "sickle.rules")
+#include: os.path.join(RULES, "sra_to_fastq.rules")
 include: os.path.join(RULES, "subread_align.rules")
 include: os.path.join(RULES, "subread_featureCounts.rules")
 include: os.path.join(RULES, "subread_index.rules")
@@ -191,63 +191,58 @@ if not (("tools" in config.keys()) and ("mapping" in config["tools"].keys())):
 
 MAPPING_TOOLS = config["tools"]["mapping"].split()
 
-INDEX = expand(GENOME_DIR + "/{aligner}/" + GENOME_VER + ".fa", aligner=MAPPING_TOOLS)
-
-#MAPPING_TOOLS.append("tophat")
+#INDEX = expand(GENOME_DIR + "/{aligner}/" + config["genome"]["fasta_file"], aligner=MAPPING_TOOLS)
 
 if TRIMMING_TOOLS:
     PREFIX = expand("{trimmer}_{aligner}", aligner=MAPPING_TOOLS, trimmer=TRIMMING_TOOLS)
 else:
     PREFIX = expand("{aligner}", aligner=MAPPING_TOOLS)
 
-ALIGNMENT=expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}", samples=SAMPLE_IDS, prefix=PREFIX)
+MAPPING         = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}.bam", samples=SAMPLE_IDS, prefix=PREFIX)
 
-MAPPING = expand("{alignment}.bam", alignment=ALIGNMENT)
+SORTED_BAM      = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_sorted_pos.bam", samples=SAMPLE_IDS, prefix=PREFIX)
+SORTED_BAM_BAI  = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_sorted_pos.bam.bai", samples=SAMPLE_IDS, prefix=PREFIX)
+BAM_STATS       = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_bam_stats.txt", samples=SAMPLE_IDS, prefix=PREFIX)
+SORTED_BED      = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_sorted_pos.bed", samples=SAMPLE_IDS, prefix=PREFIX)
 
-SORTED_BAM = expand("{alignment}_sorted_pos.bam", alignment=ALIGNMENT)
-SORTED_BAM_BAI = expand("{alignment}_sorted_pos.bam.bai", alignment=ALIGNMENT)
-BAM_STATS = expand("{alignment}_bam_stats.txt", alignment=ALIGNMENT)
+GENOME_COV      = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}.bedgraph", samples=SAMPLE_IDS, prefix=PREFIX)
+GENOME_COV_GZ   = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}.bedgraph.gz", samples=SAMPLE_IDS, prefix=PREFIX)
+GENOME_COV_TDF  = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}.tdf", samples=SAMPLE_IDS, prefix=PREFIX)
+GENOME_COV_BW   = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}.bw", samples=SAMPLE_IDS, prefix=PREFIX)
 
 #----------------------------------------------------------------#
-# RNA-seq analysis
+# Counting features
 #----------------------------------------------------------------#
 
-FEATURE_COUNTS = expand("{alignment}_featureCounts.txt", alignment=ALIGNMENT) ## todo _{feature} , feature=config["subread-featureCounts"]["feature_type"])
+if not (("tools" in config.keys()) and ("read_counts" in config["tools"].keys())):
+    sys.exit("The parameter config['tools']['read_counts'] should be specified in the config file.")
 
-INFER_TRANSCRIPTS = expand("{alignment}_cufflinks/transcripts.gtf", alignment=ALIGNMENT)
+COUNTING_TOOLS = config["tools"]["read_counts"].split()
+FEATURE_COUNTS_PER_SAMPLE   = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_{read_counts}.txt", samples=SAMPLE_IDS, prefix=PREFIX, read_counts=COUNTING_TOOLS) ##, feature_type=} , feature=config["subread-featureCounts"]["feature_type"])
+ALL_FEATURE_COUNTS          = expand(DEG_DIR + "/{prefix}_{read_counts}_all.txt", prefix=PREFIX, read_counts=COUNTING_TOOLS) ##, feature_type=} , feature=config["subread-featureCounts"]["feature_type"])
+
+#----------------------------------------------------------------#
+# DEG analysis
+#----------------------------------------------------------------#
 
 if not (("tools" in config.keys()) and ("diffexpr" in config["tools"].keys())):
     sys.exit("The parameter config['tools']['diffexpr'] should be specified in the config file.")
 
 DIFFEXPR_TOOLS = config["tools"]["diffexpr"].split()
 
-#SARTOOLS_TARGETFILE = expand(DEG_DIR + "/{prefix}_SARTools_targetfile.txt", prefix=PREFIX)
+SARTOOLS_TARGETFILE = expand(expand(DEG_DIR + "/{test}_vs_{ref}/{{aligner}}_{{read_counts}}_SARTools_targetfile.txt", test=TEST_COND, ref=REFERENCE_COND), aligner=MAPPING_TOOLS, read_counts=COUNTING_TOOLS)
+DEG = expand(expand(DEG_DIR + "/{test}_vs_{ref}/{{deg}}/{test}_vs_{ref}_{{aligner}}_{{read_counts}}_{{deg}}_report.html", zip, test=TEST_COND, ref=REFERENCE_COND), deg=DIFFEXPR_TOOLS, aligner=MAPPING_TOOLS, read_counts=COUNTING_TOOLS)
 
-#DEG = expand(DEG_DIR + "/{deg}/{prefix}_{deg}_report.html", prefix=PREFIX, deg=DIFFEXPR_TOOLS)
+#----------------------------------------------------------------#
+# Transcripts search
+#----------------------------------------------------------------#
 
-SARTOOLS_TARGETFILE = expand(expand(DEG_DIR + "/{test}_vs_{ref}/{{aligner}}_SARTools_targetfile.txt", test=TEST_COND, ref=REFERENCE_COND), aligner=MAPPING_TOOLS)
-DEG = expand(expand(DEG_DIR + "/{test}_vs_{ref}/{{deg}}/{test}_vs_{ref}_{{aligner}}_{{deg}}_report.html", zip, test=TEST_COND, ref=REFERENCE_COND), deg=DIFFEXPR_TOOLS, aligner=MAPPING_TOOLS)
-INFER_TRANSCRIPTS = expand("{alignment}_cufflinks/transcripts.gtf", alignment=ALIGNMENT)
+if not (("tools" in config.keys()) and ("infer_transcripts" in config["tools"].keys())):
+    sys.exit("The parameter config['tools']['infer_transcripts'] should be specified in the config file.")
 
-#        report = "{diffexpr_dir}/{test}_vs_{ref}/edgeR/{test}_vs_{ref}_{aligner}_edgeR_report.html",
+TRANSCRIPTS_TOOLS = config["tools"]["infer_transcripts"].split()
+INFER_TRANSCRIPTS = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_{infer_transcripts}/transcripts.gtf", samples=SAMPLE_IDS, prefix=PREFIX, infer_transcripts=TRANSCRIPTS_TOOLS)
 
-#    output: diffexpr_dir + "/{test}_vs_{ref}/SARTools_targetfile.txt"
-
-#"{diffexpr_dir}/{test}_vs_{ref}/edgeR/{test}_vs_{ref}{preprocess,.*}_edgeR_report.html"
-
-#DEG = expand(expand(DEG_DIR + "/{test}_vs_{ref}/{{deg}}/{{prefix}}_{{deg}}_report.html", zip, test=TEST_COND, ref=REFERENCE_COND), prefix=PREFIX, deg=DIFFEXPR_TOOLS)
-
-## ----------------------------------------------------------------
-## Visualization & reports
-## ----------------------------------------------------------------
-
-## TODO
-IGV = expand(REPORTS_DIR + "/igv_session.xml")
-
-GENOME_COVERAGE = expand("{alignment}.bedgraph", alignment=ALIGNMENT)
-
-GENOME_COVERAGE_GZ = expand("{alignment}.bedgraph.gz", alignment=ALIGNMENT)
-GENOME_COVERAGE_TDF = expand("{alignment}.tdf", alignment=ALIGNMENT)
 
 
 GRAPHICS = expand(REPORTS_DIR + "{graph}.png", graph=["dag", "rulegraph"])

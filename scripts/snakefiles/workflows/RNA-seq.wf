@@ -41,18 +41,9 @@ import datetime
 import re
 import pandas as pd
 
-# Define verbosity
-if not ("verbosity" in config.keys()):
-    config["verbosity"] = 0
-verbosity = int(config["verbosity"])
-
-
 wd = os.getcwd()
 
-#workdir: os.getcwd()
-
 GENEREG_LIB = os.path.join(wd, config["dir"]["gene_regulation"])
-
 
 # Python includes
 PYTHON = os.path.join(GENEREG_LIB, "scripts/python_lib")
@@ -61,17 +52,6 @@ include: os.path.join(PYTHON, "util.py")
 #================================================================#
 #                      Global variables
 #================================================================#
-
-# Raw data
-if not (("dir" in config.keys()) and ("reads_source" in config["dir"].keys())):
-    sys.exit("The parameter config['dir']['reads_source'] should be specified in the config file.")
-else:
-    READS = config["dir"]["reads_source"]
-
-if not (("metadata" in config.keys()) and ("strands" in config["metadata"].keys())):
-    sys.exit("The strands suffixes (parameter config['metadata']['strands']) should be specified in the config file for a paired ends analysis.")
-
-STRANDS = config["metadata"]["strands"].split()
 
 # Samples
 SAMPLE_IDS = read_table(config["metadata"]["samples"])['ID']
@@ -88,23 +68,11 @@ GENOME_GFF3 = os.path.join(GENOME_DIR, config["genome"]["gff3_file"])
 GENOME_GTF = os.path.join(GENOME_DIR, config["genome"]["gtf_file"])
 
 
-## Data & results dir
-if not (("dir" in config.keys()) and ("reads_source" in config["dir"].keys())):
-    sys.exit("The parameter config['dir']['reads_source'] should be specified in the config file.")
-
-READS = config["dir"]["reads_source"]
-if not os.path.exists(READS):
-    os.makedirs(READS)
-
+# Data & results dir
 if not ("results" in config["dir"].keys()):
     sys.exit("The parameter config['dir']['results'] should be specified in the config file.")
 else:
     RESULTS_DIR = config["dir"]["results"]
-
-if not ("fastq" in config["dir"].keys()):
-    sys.exit("The parameter config['dir']['fastq'] should be specified in the config file.")
-else:
-    FASTQ_DIR = config["dir"]["fastq"]
 
 if not ("samples" in config["dir"].keys()):
     SAMPLE_DIR = config["dir"]["results"]
@@ -120,7 +88,6 @@ if not ("diffexpr" in config["dir"].keys()):
     DEG_DIR = config["dir"]["results"]
 else:
     DEG_DIR = config["dir"]["diffexpr"]
-
 
 #================================================================#
 #               Snakemake includes
@@ -141,7 +108,6 @@ include: os.path.join(RULES, "bwa.rules")
 include: os.path.join(RULES, "cufflinks.rules")
 include: os.path.join(RULES, "dot_graph.rules")
 include: os.path.join(RULES, "dot_to_image.rules")
-include: os.path.join(RULES, "fastqc.rules")
 include: os.path.join(RULES, "genome_coverage_bedgraph.rules")
 include: os.path.join(RULES, "genome_coverage_bedgraph_strands.rules")
 include: os.path.join(RULES, "get_chrom_sizes.rules")
@@ -149,8 +115,6 @@ include: os.path.join(RULES, "index_bam.rules")
 include: os.path.join(RULES, "sartools_DESeq2.rules")
 include: os.path.join(RULES, "sartools_edgeR.rules")
 include: os.path.join(RULES, "sartools_targetfile.rules")
-include: os.path.join(RULES, "sickle.rules")
-include: os.path.join(RULES, "sra_to_fastq_split.rules")
 include: os.path.join(RULES, "subread_align.rules")
 include: os.path.join(RULES, "subread_featureCounts.rules")
 include: os.path.join(RULES, "subread_featureCounts_all.rules")
@@ -161,21 +125,8 @@ include: os.path.join(RULES, "tophat.rules")
 #                         Workflow                               #
 #================================================================#
 
-## Data import 
-#IMPORT = expand(FASTQ_DIR + "/{samples}/{samples}_{strand}.fastq", samples=SAMPLE_IDS, strand=STRANDS)
-
-## Graphics & reports
-GRAPHICS = expand(REPORTS_DIR + "/{graph}.png", graph=["dag", "rulegraph"])
-
 #----------------------------------------------------------------#
-# Quality control
-#----------------------------------------------------------------#
-
-RAW_QC = expand(FASTQ_DIR + "/{samples}/{samples}_{strand}_fastqc/{samples}_{strand}_fastqc.html", samples=SAMPLE_IDS, strand=STRANDS)
-QC = RAW_QC
-
-#----------------------------------------------------------------#
-# Trimming
+# Workflow design (TODO)
 #----------------------------------------------------------------#
 
 if not (("tools" in config.keys()) and ("trimming" in config["tools"].keys())):
@@ -183,31 +134,26 @@ if not (("tools" in config.keys()) and ("trimming" in config["tools"].keys())):
 
 TRIMMING_TOOLS = config["tools"]["trimming"].split()
 
-TRIMMING = expand(SAMPLE_DIR + "/{samples}/{samples}_{trimmer}_{strand}", samples=SAMPLE_IDS, trimmer=TRIMMING_TOOLS, strand=STRANDS)
-TRIM = expand("{trimming}.fastq", trimming=TRIMMING)
-
-TRIM_QC = expand(FASTQ_DIR + "/{samples}/{samples}_{trimmer}_{strand}_fastqc/{samples}_{trimmer}_{strand}_fastqc.html", samples=SAMPLE_IDS, trimmer=TRIMMING_TOOLS, strand=STRANDS)
-
-QC = RAW_QC + TRIM_QC
-
-
-#----------------------------------------------------------------#
-# Alignment
-#----------------------------------------------------------------#
-
 if not (("tools" in config.keys()) and ("mapping" in config["tools"].keys())):
     sys.exit("The parameter config['tools']['mapping'] should be specified in the config file.")
 
 MAPPING_TOOLS = config["tools"]["mapping"].split()
 
-INDEX = expand(GENOME_DIR + "/{aligner}/" + config["genome"]["fasta_file"], aligner=MAPPING_TOOLS)
-
-#MAPPING_TOOLS.append("tophat")
-
 if TRIMMING_TOOLS:
     PREFIX = expand("{trimmer}_{aligner}", aligner=MAPPING_TOOLS, trimmer=TRIMMING_TOOLS)
 else:
     PREFIX = expand("{aligner}", aligner=MAPPING_TOOLS)
+
+if not (("tools" in config.keys()) and ("diffexpr" in config["tools"].keys())):
+    sys.exit("The parameter config['tools']['diffexpr'] should be specified in the config file.")
+
+DIFFEXPR_TOOLS = config["tools"]["diffexpr"].split()
+
+#----------------------------------------------------------------#
+# Alignment
+#----------------------------------------------------------------#
+
+INDEX = expand(GENOME_DIR + "/{aligner}/" + config["genome"]["fasta_file"], aligner=MAPPING_TOOLS)
 
 MAPPING         = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}.bam", samples=SAMPLE_IDS, prefix=PREFIX)
 
@@ -216,13 +162,13 @@ SORTED_BAM_BAI  = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_sorted_pos.
 BAM_STATS       = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_bam_stats.txt", samples=SAMPLE_IDS, prefix=PREFIX)
 SORTED_BED      = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_sorted_pos.bed", samples=SAMPLE_IDS, prefix=PREFIX)
 
-GENOME_COV      = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}.bedgraph", samples=SAMPLE_IDS, prefix=PREFIX)
 GENOME_COV_GZ   = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}.bedgraph.gz", samples=SAMPLE_IDS, prefix=PREFIX)
 GENOME_COV_TDF  = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}.tdf", samples=SAMPLE_IDS, prefix=PREFIX)
 GENOME_COV_BW   = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}.bw", samples=SAMPLE_IDS, prefix=PREFIX)
-
 GENOME_COV_PLUS = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_plus_strand.bedgraph", samples=SAMPLE_IDS, prefix=PREFIX) 
 GENOME_COV_MINUS= expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_minus_strand.bedgraph", samples=SAMPLE_IDS, prefix=PREFIX) 
+
+ALL_COVERAGE    = GENOME_COV_GZ, GENOME_COV_BW, GENOME_COV_TDF, GENOME_COV_PLUS, GENOME_COV_MINUS
 
 #----------------------------------------------------------------#
 # Counting features
@@ -231,18 +177,13 @@ GENOME_COV_MINUS= expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_minus_stran
 COUNTING_TOOLS = config["tools"]["read_counts"].split()
 FEATURE_COUNTS_PER_SAMPLE   = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_{read_counts}.txt", samples=SAMPLE_IDS, prefix=PREFIX, read_counts=COUNTING_TOOLS) ##, feature_type=} , feature=config["subread-featureCounts"]["feature_type"])
 ALL_FEATURE_COUNTS          = expand(DEG_DIR + "/{prefix}_{read_counts}_all.txt", prefix=PREFIX, read_counts=COUNTING_TOOLS) ##, feature_type=} , feature=config["subread-featureCounts"]["feature_type"])
-#ALL_FEATURE_COUNTS          = expand(DEG_DIR + "/bowtie2_featureCounts_all.txt") ##, prefix=PREFIX, read_counts=COUNTING_TOOLS) ##, feature_type=} , feature=config["subread-featureCounts"]["feature_type"])
+
 #----------------------------------------------------------------#
 # DEG analysis
 #----------------------------------------------------------------#
 
-if not (("tools" in config.keys()) and ("diffexpr" in config["tools"].keys())):
-    sys.exit("The parameter config['tools']['diffexpr'] should be specified in the config file.")
-
-DIFFEXPR_TOOLS = config["tools"]["diffexpr"].split()
-
-SARTOOLS_TARGETFILE = expand(expand(DEG_DIR + "/{test}_vs_{ref}/{{aligner}}_{{read_counts}}_SARTools_targetfile.txt", test=TEST_COND, ref=REFERENCE_COND), aligner=MAPPING_TOOLS, read_counts=COUNTING_TOOLS)
-DEG = expand(expand(DEG_DIR + "/{test}_vs_{ref}/{{deg}}/{test}_vs_{ref}_{{aligner}}_{{read_counts}}_{{deg}}_report.html", zip, test=TEST_COND, ref=REFERENCE_COND), deg=DIFFEXPR_TOOLS, aligner=MAPPING_TOOLS, read_counts=COUNTING_TOOLS)
+SARTOOLS_TARGETFILE = expand(expand(DEG_DIR + "/{test}_vs_{ref}/{{prefix}}_{{read_counts}}_SARTools_targetfile.txt", test=TEST_COND, ref=REFERENCE_COND), prefix=PREFIX, read_counts=COUNTING_TOOLS)
+DEG = expand(expand(DEG_DIR + "/{test}_vs_{ref}/{{deg}}/{test}_vs_{ref}_{{prefix}}_{{read_counts}}_{{deg}}_report.html", zip, test=TEST_COND, ref=REFERENCE_COND), deg=DIFFEXPR_TOOLS, prefix=PREFIX, read_counts=COUNTING_TOOLS)
 
 #----------------------------------------------------------------#
 # Transcripts search
@@ -251,32 +192,36 @@ DEG = expand(expand(DEG_DIR + "/{test}_vs_{ref}/{{deg}}/{test}_vs_{ref}_{{aligne
 TRANSCRIPTS_TOOLS = config["tools"]["infer_transcripts"].split()
 INFER_TRANSCRIPTS = expand(SAMPLE_DIR + "/{samples}/{samples}_{prefix}_{infer_transcripts}/transcripts.gtf", samples=SAMPLE_IDS, prefix=PREFIX, infer_transcripts=TRANSCRIPTS_TOOLS)
 
+
+
+## Graphics & reports
+GRAPHICS = expand(REPORTS_DIR + "/RNA-seq_{graph}.{ext}", graph=["dag", "rulegraph"], ext=["png", "pdf", "svg"])
+
 #================================================================#
 #                        Rule all                                #
 #================================================================#
 
 rule all: 
 	"""
-	Run all the required analyses.
+	Run analyses.
 	"""
 	input: \
-            IMPORT, \
-            QC, \
-            INDEX, \
-            MAPPING, \
-            SORTED_BAM, \
+            #IMPORT, \
+            #QC, \
+            #INDEX, \
+            #MAPPING, \
+            #SORTED_BAM, \
             SORTED_BAM_BAI, \
-            BAM_STATS, \
-            GENOME_COV_TDF, \
-            GENOME_COV_PLUS, \
-            GENOME_COV_MINUS, \
-            FEATURE_COUNTS_PER_SAMPLE, \
+            #BAM_STATS, \
+            #GENOME_COV_TDF, \
+            #GENOME_COV_PLUS, \
+            #GENOME_COV_MINUS, \
+            #FEATURE_COUNTS_PER_SAMPLE, \
             ALL_FEATURE_COUNTS, \
-            SARTOOLS_TARGETFILE, \
+            #SARTOOLS_TARGETFILE, \
             DEG, \
-#            INFER_TRANSCRIPTS, \
+            INFER_TRANSCRIPTS, \
             GRAPHICS
 	params: qsub=config["qsub"]
 	shell: "echo Job done    `date '+%Y-%m-%d %H:%M'`"
 
->>>>>>> upstream/master
