@@ -87,7 +87,7 @@ This program contains several reusable NGS-specific rules, as well as a few work
 
 **A tutorial on Snakemake** basic usage is available in the doc section: [`doc/snakemake_tutorial`](doc/snakemake_tutorial).
 
-# Workflow example
+## Example study cases (data and workflow)
 
 In the [example directory](https://github.com/TAGC-bioinformatics/gene-regulation/tree/master/examples) you will find several case studies ready to be tested. Each study includes the following files:
 
@@ -101,13 +101,23 @@ Follow the instructions in the `README.md` file in order to execute the whole wo
 These workflows generate a flowchart of the analysis, fo example here is the chart for ChIP-seq_SE_GSE20870 study case:
 ![](img/rule.png)
 
-Here is the chart for the [RNA-seq paired ended Flavio analyses](https://github.com/TAGC-bioinformatics/gene-regulation/blob/master/scripts/snakefiles/workflows/RNA-seq_workflow_PE_Flavio.wf) :
+The differential expression performed via SARtools in the workflow, can produce text or html reports.
+
+## An RNA-seq workflow example
+
+The Flavio analyses is a tumor versus control case study of mouse RNA-seq paired-ended fastq files. The [Flavio workflow](https://github.com/TAGC-bioinformatics/gene-regulation/blob/master/scripts/snakefiles/workflows/RNA-seq_workflow_PE_Flavio.wf) we designed performed:  
+1. quality control with fastqc
+2. mapping with subread-align
+3. indexing with subread-index
+4. feature count with subread
+5. differential expression in R with SARtools (edgeR and DESeq2)
+
+Here is the chart for this workflow  :
 ![](img/flavio_rulegraph.png)
 
-# RNA-sew workflow example
-
-
 # Documentation
+
+In order to begin building your own workflow for your data to analyse, you may want to check the [how_to_build_a_new_workflow guide](https://github.com/TAGC-bioinformatics/gene-regulation/blob/master/how_to_make_a_new_workflow.md) (not complete, ongoing work).
 
 More documentation can be found in the `doc` directory.
 
@@ -120,10 +130,13 @@ It includes:
 
 Some general information about NGS can be found in the **Wiki** section. 
 
-
-
 # Contact
 
+At the BCF:   
+- Bianca Habermann <bianca.habermann@univ-amu.fr>
+- Edlira Nano <edlira.nano@inserm.fr>
+
+At the TAGC: (original gene-regulation package)  
 - Claire Rioualen <claire.rioualen@inserm.fr>
 - Jacques van Helden <Jacques.van-helden@univ-amu.fr>
 
