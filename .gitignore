@@ -4,8 +4,6 @@
 *.pyc
 *.html
 
-## Claire
-
 .snakemake/
 Rsession/
 .Rproj.user
@@ -14,3 +12,5 @@ Rsession/
 .\#*
 .Rhistory
 .DS_Store
+
+*.swp

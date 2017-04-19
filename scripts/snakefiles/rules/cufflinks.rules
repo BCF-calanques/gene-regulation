@@ -17,6 +17,10 @@ if not "threads" in config["cufflinks"].keys():
 if not "libtype" in config["cufflinks"].keys():
     config["cufflinks"]["libtype"] = "below"
 
+if not "multi-read-correct" in config["cufflinks"].keys():
+    config["cufflinks"]["multi-read-correct"] = "multi-read-correct"
+
+    
 # Rule
 rule cufflinks:
     """Annotate a genome (infer transcript regions) based on RNA-seq data.
@@ -34,6 +38,8 @@ rule cufflinks:
     Optional parameters:
         config["cufflinks"]["libtype"]
         config["cufflinks"]["threads"]
+        config["cufflinks"]["multi-read-correct"]
+    
 
     Params to add:
         cuffmerge_dir
@@ -50,7 +56,8 @@ rule cufflinks:
     log:  "{reads}_cufflinks.log"
     benchmark:  "{reads}_cufflinks_benchmark.json"
     params: libtype = config["cufflinks"]["libtype"], \
+        multi_read_correct = config["cufflinks"]["multi-read-correct"], \
         threads = config["cufflinks"]["threads"], \
         qsub = config["qsub"] + " -e {reads}_cufflinks_qsub.err -o {reads}_cufflinks_qsub.out"
-    shell: "cufflinks --GTF-guide {input.gtf} --num-threads {params.threads}  --library-type {params.libtype}  --output-dir {output.outdir} {input.bam} 2> {log}" 
+    shell: "cufflinks --GTF-guide {input.gtf} --num-threads {params.threads} --{params.multi_read_correct} --library-type {params.libtype} --output-dir {output.outdir} {input.bam} 2> {log}" 
 
