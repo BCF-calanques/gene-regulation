@@ -1,11 +1,13 @@
 # Gene Regulation @ Calanques BCF  
-*Authors : Edlira Nano, Claire Rioualen*
+*Authors : Edlira Nano, Claire Rioualen* 
+
+This work was funded by the IFB project T5 : https://www.france-bioinformatique.fr/fr/projets2015/t5-project
 
 This program holds shared code to produce workflows for the analysis of Next
 Generation Sequencing data related to gene regulation: ChIP-seq,
 RNA-seq, and related technologies, as used at the Calanques BCF (Bioinformatics Core Facility, TAGC & IBDM labs). 
 
-This program is a fork of the original France Genomique Workpackage 2.6 - Gene Regulation : https://github.com/rioualen/gene-regulation.
+This program is a fork of the original France Genomique Workpackage 2.6 - Gene Regulation : https://github.com/rioualen/gene-regulation from Claire Rioualen.
 
 This version of the gene-regulation package follows the guidelines of: 
 1) [report of the RNA-seq meeting @ TAGC](https://github.com/TAGC-bioinformatics/RNAseqmake/blob/master/doc/preliminaries/report-RNA-seq-pipeline.md) 
